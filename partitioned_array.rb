@@ -20,6 +20,7 @@
 # 1) allocate range_arr and get the DB running
 # 2) allocate rel_arr based on range_arr
 # 3) allocate the actual array (@data_arr)
+# VERSION v1.1.2 (2022/03/31 - 405:am) - refined and created reference to the algorithm
 # VERSION v1.1.1 (2022/03/20 - 8:38 PM)
 # * performed a minor regression and corrected a couple bugs
 # VERSION: v1.1.0 (2022/03/30 - 3:46PM)
@@ -59,11 +60,12 @@ class PartitionedArray
   attr_reader :range_arr, :rel_arr, :db_size, :data_arr, :partition_amount_and_offset, :db_path, :db_name
 
   # DB_SIZE > PARTITION_AMOUNT
-  PARTITION_AMOUNT = 10 # The initial, + 1
+  VERSION = "v1.1.2"
+  PARTITION_AMOUNT = 5 # The initial, + 1
   OFFSET = 1 # This came with the math
-  DB_SIZE = 100 # Caveat: The DB_SIZE is the total # of partitions, but you subtract it by one since the first partition is 0, in code.
+  DB_SIZE = 3 # Caveat: The DB_SIZE is the total # of partitions, but you subtract it by one since the first partition is 0, in code.
   DEFAULT_PATH = './CGMFS' # default fallback/write to current path
-  DEBUGGING = true
+  DEBUGGING = false
   DB_NAME = 'partitioned_array_slice'
 
   def initialize(db_size: DB_SIZE, partition_amount_and_offset: PARTITION_AMOUNT + OFFSET, db_path: DEFAULT_PATH)
@@ -114,7 +116,7 @@ class PartitionedArray
     if partition_id <= @db_size - 1
       @data_arr[@range_arr[partition_id]]
     else
-      debug("SliceID #{partition_id} is out of bounds.")
+      debug "SliceID #{partition_id} is out of bounds."
       nil
     end
   end
@@ -129,7 +131,7 @@ class PartitionedArray
       elsif block_given? && @data_arr[id].nil?
         # this element in particular must have been turned off; every initial element is an OpenStruct and nil if that partition was deactivated
         debug "Loading array element #{id} from nil"
-        @data_arr[id] = Hash.new
+        @data_arr[id] = {}
         block.call(@data_arr[id])
       else
         raise "No block given for element #{id}"
@@ -226,21 +228,15 @@ class PartitionedArray
     end
 
     @db_size += 1
-    @partition_amount_and_offset.times { @data_arr << Hash.new } # initialize new partition within array to nils
+    @partition_amount_and_offset.times { @data_arr << {} } # initialize new partition within array to nils
     # @partition_amount_and_offset.times { @data_arr << nil} # initialize new partition within array to nils
     debug "Partition added successfully; data allocated"
     debug "@data_arr: #{@data_arr}"
     # @partition_amount_and_offset.times { nil }
   end
 
-  def save!(db_path: @db_path); end
-
-  # Implement as json and "dragonruby json"
-  def allocate_file!(db_path: @db_path); end
-
   # When loading a JSON database file (*_db.json), the related @ arr variables need to be set to what is within the JSON file database.
   # This means the need to parse a file, and @allocated is set to true in the end.
-
 
   def string2range(range_string)
     split_range = range_string.split("..")
@@ -255,7 +251,6 @@ class PartitionedArray
   # part_} => it is taken from the range_ar} subdivisions; perform a map and load it into the database, one by one
   def load_from_json!(db_folder: @db_folder)
     path = "#{@db_path}/#{@db_name}"
-    p Dir.pwd
     @data_arr = File.open("#{path}/data_arr.json", 'r') { |f| JSON.parse(f.read) }
     @partition_amount_and_offset = File.open("#{path}/partition_amount_and_offset.json", 'r') { |f| JSON.parse(f.read) }
     @range_arr = File.open("#{path}/range_arr.json", 'r') { |f| JSON.parse(f.read) }
