@@ -1,6 +1,6 @@
 # Partitioned Arrays
 
-**WIP.** - ***Last updated: 3/31/2022**
+**WIP.** - ***Last updated: 3/31/2022***
 
 A partitioned array data structure which works with JSON for disk storage, and a pure JSON parser is in progress. With two constants, the algorithm creates a data structure and allocates empty associative array elements and understands the structure of the partitions.
 
