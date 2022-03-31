@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Partitioned Arrays
 
 **WIP.** - ***Last updated: 3/31/2022**
@@ -153,3 +154,6 @@ Before:
 "successfully modified partition subelement: true"
 "New @data_arr: [{\"first\"=>\"1st\", \"id\"=>0, :modified=>\"0, 0\"}, {\"second\"=>\"2nd\", \"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>4}, {\"id\"=>4}, {\"id\"=>4}, {\"id\"=>4}, {\"id\"=>4}, {\"id\"=>4}, {}, {}, {}, {}, {}, {\"last\"=>\"Nth\"}]"
 ```
+=======
+# PartitionedArray.rb
+>>>>>>> b4053b8b3c885e55bdf59000d0802193de23da34
