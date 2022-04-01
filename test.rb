@@ -20,7 +20,6 @@
 # 1) allocate range_arr and get the DB running
 # 2) allocate rel_arr based on range_arr
 # 3) allocate the actual array (@data_arr)
-# VERSION v3.0.0 (2022/04/01) - 1:31 AM - Ready for primetime. All basic interaction functions have been implemented
 # VERSION v1.1.3 (2022/03/31)
 # VERSION v1.1.2 (2022/03/31 - 4:05:am) - refined and created reference to the algorithm
 # VERSION v1.1.1 (2022/03/20 - 8:38 PM)
@@ -65,7 +64,7 @@ class PartitionedArray
   OFFSET = 1 # This came with the math
   DB_SIZE = 3 # Caveat: The DB_SIZE is the total # of partitions, but you subtract it by one since the first partition is 0, in code.
   DEFAULT_PATH = './CGMFS' # default fallback/write to current path
-  DEBUGGING = true
+  DEBUGGING = false
   DB_NAME = 'partitioned_array_slice'
 
   def initialize(db_size: DB_SIZE, partition_amount_and_offset: PARTITION_AMOUNT + OFFSET, db_path: DEFAULT_PATH, db_name: DB_NAME)
@@ -103,17 +102,12 @@ class PartitionedArray
       if block_given? && partition[id].instance_of?(Hash)
         block.call(partition[id])
         set_successfully = true
-      else        
+      else
+        debug "error"
         set_successfully = false
       end
     end
     set_successfully
-  end
-
-  def get_partition_subelement(id, partition_id)
-    # get the partition's array element
-    partition = get_partition(partition_id)
-    partition[id]
   end
 
   def get_partition(partition_id)
@@ -251,9 +245,9 @@ class PartitionedArray
 
   # loads the files within the directory CGMFS/partitioned_array_slice
   # needed things
-  # range_ar => it is the array of ranges that the database is divided into
-  # data_ar => it is output to json
-  # rel_ar => it is output to json
+  # range_ar} => it is the array of ranges that the database is divided into
+  # data_ar} => it is output to json
+  # rel_ar} => it is output to json
   # part_} => it is taken from the range_ar} subdivisions; perform a map and load it into the database, one by one
   def load_from_json!(db_folder: @db_folder)
     path = "#{@db_path}/#{@db_name}"
@@ -273,7 +267,7 @@ class PartitionedArray
   # Complete
   def pure_load_partition_from_file!(partition_id)
     path = "#{@db_path}/#{@db_name}"
-    #data_arr = File.open("#{path}/data_arr.json", 'r') { |f| ::JSONeval.data_arr2ruby(f.read) }
+    data_arr = File.open("#{path}/data_arr.json", 'r') { |f| ::JSONeval.data_arr2ruby(f.read) }
     @partition_amount_and_offset = File.open("#{path}/partition_amount_and_offset.json", 'r') { |f| ::JSONeval.partition_amount_and_offset2ruby(f.read) }
     @range_arr = File.open("#{path}/range_arr.json", 'r') { |f| ::JSONeval.range_arr2ruby(f.read) }
     p @range_arr
@@ -287,29 +281,25 @@ class PartitionedArray
     sliced_range_arr = sliced_range_arr[0]..sliced_range_arr[-1]
 
     partition_data = File.open("#{path}/#{@db_name}_part_#{partition_id}", 'r') { |f| ::JSONeval.json2ruby(f.read) }
-    p "partition_data: #{partition_data}"
     puts "sliced_range_arr: #{sliced_range_arr}"
     sliced_range_arr.to_a.each do |range_element|
       puts "debug: #{range_element}"
-      @data_arr[range_element] = partition_data[range_element]
-      debug "partition_data: #{partition_data}"
+      @data_arr[range_element] = data_arr[range_element]
     end
-    debug "data_arr: #{@data_arr}"
     @data_arr[@range_arr[partition_id]]
   end
 
   # Using Ruby's JSON library
   def load_partition_from_file!(partition_id)
     path = "#{@db_path}/#{@db_name}"
-    #@data_arr = File.open("#{path}/data_arr.json", 'r') { |f| JSON.parse(f.read) }
+    @data_arr = File.open("#{path}/data_arr.json", 'r') { |f| JSON.parse(f.read) }
     @partition_amount_and_offset = File.open("#{path}/partition_amount_and_offset.json", 'r') { |f| JSON.parse(f.read) }
     @range_arr = File.open("#{path}/range_arr.json", 'r') { |f| JSON.parse(f.read) }
     @range_arr.map! { |range_element| string2range(range_element) }
     @rel_arr = File.open("#{path}/rel_arr.json", 'r') { |f| JSON.parse(f.read) }
     sliced_range_arr = @range_arr[partition_id].to_a.map { |range_element| range_element }
     partition_data = File.open("#{path}/#{@db_name}_part_#{partition_id}", 'r') { |f| JSON.parse(f.read) }
-    #((sliced_range_arr[0].to_i)..(sliced_range_arr[-1].to_i)).to_a.each do |range_element|
-    sliced_range_arr.each do |range_element|
+    ((sliced_range_arr[0].to_i)..(sliced_range_arr[-1].to_i)).to_a.each do |range_element|
       @data_arr[range_element] = partition_data[range_element]
     end
     @data_arr[@range_arr[partition_id]]

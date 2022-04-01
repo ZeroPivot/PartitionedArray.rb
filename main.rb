@@ -4,17 +4,26 @@ require 'json'
 
 y = PartitionedArray.new
 y.allocate
+p y.pure_load_partition_from_file!(0)
+p y.load_partition_from_file!(0)
 
-p y.get_partition 0
-#y.add_partition
-
-y.set(0) do |i| 
-  i["lol"] = "lol"
-  i["lol2"] = "lol2"
+y.set_partition_subelement(0, -1) do |partition_subelement|
+  partition_subelement["test"] = { "test" => "test" }
 end
 
-p y.get_partition(-1)
-p y.get_partition(0)
+p y.get_partition_subelement(0, 0)
+
+exit
+#p y.get_partition 0
+#y.add_partition
+
+#y.set(0) do |i| 
+ # i["lol"] = "lol"
+ # i["lol2"] = "lol2"
+#end
+
+#p y.get_partition(-1)
+#p y.get_partition(0)
 
 
 =begin
@@ -24,9 +33,9 @@ y.set_partition_subelement(3, 0) do |partition_subelement|
 end
 =end
 
-p y.get_partition(-1)
+#p y.get_partition(-1)
 
-p y.data_arr
+#p y.data_arr
 
 # Visuals
 def allocate_ranges_sequentially(partitioned_array)
@@ -41,6 +50,8 @@ def allocate_ranges_sequentially(partitioned_array)
   partitioned_array.data_arr
 end
 
+
+=begin
 p allocate_ranges_sequentially(y)
 
 puts "Before:"
@@ -69,3 +80,4 @@ y.load_partition_from_file!(0)
 p y.data_arr[0..77]
 
 y.save_partition_to_file!(60)
+=end

@@ -21,10 +21,25 @@
 # 2) convert to json using parse_string
 class JSONeval
   
+  def self.range_arr2ruby(json_string)
+    p eval(json_string)
+    eval(json_string)
+  end
+
+  def self.data_arr2ruby(json_string)
+    eval(json_string)
+  
+  end
+  def self.partition_amount_and_offset2ruby(json_string);end
+  def self.rel_arr2ruby(json_string);end
+
+
   def self.ruby2json(ruby_ds)
     u_string = ruby_ds.to_s
     u_string.gsub! "=>", ":" # replace ruby's hashrocket with JSON's :
     #u_string.gsub! '"', '\"' 
+    # TODO: FIX The idea that the nil as a hash key could be replaced by not having quotations, which wouldn't work
+    # caveat with self.ruby2json: if the "nil" is a hash key, it will be replaced by a nil object
     u_string.gsub! "nil", "\"null\"" # replace Ruby's nil with null
   end  
 
@@ -33,21 +48,25 @@ class JSONeval
     u_string.gsub! ":", "=>" # replace ruby's hashrocket with JSON's :
     u_string.gsub! '\"', '"'
     u_string.gsub! "null", "nil" # replace json's null with nil\
-    u_string = eval(u_string).transform_keys(&:to_s)
-    u_string.each_key do |key| # |(key, value), index| if each_eith_index
-      if u_string[key] == "nil"
-        u_string[key] = nil
+    u_string = eval(u_string)
+    #puts "eval'd string: #{u_string}"
+    
+=begin    puts "u_string: #{u_string}"
+    u_string.each_with_index do |(key, value), index|
+      puts "value"
+      case value      
+      when Array 
+      value.each_with_index do |(key, value), index| # |(key, value), index| if each_with_index        
+          u_string[key] = eval(u_string[key])      
+      end       
       end
-    end
-
+    end unless u_string.is_a?(Integer)
   end
+=end
+end
 end
 
-ruby_ds = { "lol" => 2, "rofl" => "hehe", "hehe" => nil }
 
-json_string = JSONeval.ruby2json(ruby_ds)
-p json_string
-p json_string = JSONeval.json2ruby(json_string)
 
 =begin
 database = AOH.new
