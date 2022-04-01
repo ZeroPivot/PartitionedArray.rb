@@ -22,7 +22,6 @@
 class JSONeval
   
   def self.range_arr2ruby(json_string)
-    p eval(json_string)
     eval(json_string)
   end
 
