@@ -60,7 +60,7 @@ class PartitionedArray
   attr_accessor :range_arr, :rel_arr, :db_size, :data_arr, :partition_amount_and_offset, :db_path, :db_name
 
   # DB_SIZE > PARTITION_AMOUNT
-  VERSION = "v1.1.2"
+  VERSION = "v3.0.0"
   PARTITION_AMOUNT = 5 # The initial, + 1
   OFFSET = 1 # This came with the math
   DB_SIZE = 3 # Caveat: The DB_SIZE is the total # of partitions, but you subtract it by one since the first partition is 0, in code.
