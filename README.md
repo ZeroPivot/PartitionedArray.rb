@@ -23,7 +23,7 @@ Example of how a `partitioned array` is structured:
 
 However, as a note: The partitioned array algorithm is currently coded in a way that it does not actually use subarrays; the algorithm takes responsibility for all aspects of the data structure (partitions, ranges, etc), so an array when defined by `fig 69`, would look slightly different, it would look like...
 
-`[0, 1, 2, 3, 4, n, n+1, n+2, ... n]`
+`[0, 1, 2, 3, 4, n, n+1, n+2, ..., n+k]`
 
 Note: The basic idea is you can store the array itself onto disk and "switch off" certain partitions, thus allowing for Ruby's Garbage collector to take hold
 
