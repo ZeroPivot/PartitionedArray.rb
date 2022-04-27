@@ -28,7 +28,7 @@ However, as a note: The partitioned array algorithm is currently coded in a way 
 Note: The basic idea is you can store the array itself onto disk and "switch off" certain partitions, thus allowing for Ruby's Garbage collector to take hold
 
 ```ruby
-require 'partitioned_array'
+require_relative 'partitioned_array'
 
 pa = PartitionedArray.new
 pa.allocate
