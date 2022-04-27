@@ -1,6 +1,54 @@
-# Partitioned Arrays
+# Partitioned Arrays, a brand new prototype data structure (Tested, but not proven)
 
-**WIP.** - ***Last updated: 3/31/2022***
+Mode: Constant Development
+
+
+Sorry about the mess, I am trying to make good documentation
+
+## Synopsis
+
+A partitioned array is defined as a datastructure which has "partitioned elements" within what should be a `regular array`
+
+The data structure used for every element in the array is a Ruby Hash, or otherwise known as an Associative Array
+
+Example of how a `partitioned array` is structured:
+
+`figure 69 (partitioned array structure):`
+`[[0, 1, 2], [3, 4], ..., [n, ..., n+1]]`
+
+`Caveat`: The first partition (`[0,1,2]` always contains the 0th element otherwise known as `0` )
+
+
+However, as a note: The partitioned array algorithm is currently coded in a way that it does not actually use subarrays; the algorithm takes responsibility for all aspects of the data structure (partitions, ranges, etc), so an array when defined by `fig 69`, would look slightly different, it would look like...
+
+`[0, 1, 2, 3, 4, n, n+1, n+2, ... n]
+
+Note: The basic idea is you can store the array itself onto disk and "switch off" certain partitions, thus allowing for Ruby's Garbage collector to take hold
+
+```ruby
+require 'partitioned_array'
+
+pa = PartitionedArray.new
+pa.allocate
+
+pa.add do |hash|
+    hash['value'] = "value"
+end
+
+pa.get(id) # => "Get an element of the partitioned array, ignoring the partioning scheme"
+
+pa.add_partition #=> "dynamically allocates new partition sub-elements to the partitioned array, as defined by the constants"
+
+pa.load_from_json! #=> loads database from json files, using Ruby's JSON parser
+pa.load_partition_from_file!(partiion_id) #=> loads a given partition id from the @data_arr array
+pa.save_partition_to_file!
+
+pa.dump_to_json!
+
+=begin
+The above is basic usage for the partitioned array data structure. For tested code and configuration options, see below.
+```
+**WIP.** - ***Last updated: 4.27.2022***
 
 A partitioned array data structure which works with JSON for disk storage, and a pure JSON parser is in progress. With two constants, the algorithm creates a data structure and allocates empty associative array elements and understands the structure of the partitions.
 
@@ -70,7 +118,7 @@ partitioned_array.set(id + 1) do |hash|
     hash["second"] = "2nd"
 end
 
-# add a partition to the @range_arr; @data_arr, add partition_amount_and\offset to @rel_arr, @db_size increases by one
+# add a partition to the @range_arr; @data_arr, add partition_amount_andoffset to @rel_arr, @db_size increases by one
 partitioned_array.add_partition 
 partitioned_array.add_partition
 
@@ -148,8 +196,8 @@ Before:
 "@partition_amount_and_offset: true"
 "@range_arr: true"
 "@rel_arr: true"
-"Get a certain slice of @data_arr (0..4): [{\"first\"=>\"1st\", \"id\"=>0}, {\"second\"=>\"2nd\", \"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}]"
-"Load partition data into @data_arr (0th): [{\"first\"=>\"1st\", \"id\"=>0}, {\"second\"=>\"2nd\", \"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}]"
+"Get a certain slice of @data_arr (0..4): [{"first"=>"1st", "id"=>0}, {"second"=>"2nd", "id"=>0}, {"id"=>0}, {"id"=>0}, {"id"=>0}]"
+"Load partition data into @data_arr (0th): [{"first"=>"1st", "id"=>0}, {"second"=>"2nd", "id"=>0}, {"id"=>0}, {"id"=>0}, {"id"=>0}, {"id"=>0}, {"id"=>0}]"
 "successfully modified partition subelement: true"
-"New @data_arr: [{\"first\"=>\"1st\", \"id\"=>0, :modified=>\"0, 0\"}, {\"second\"=>\"2nd\", \"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>0}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>1}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>2}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>3}, {\"id\"=>4}, {\"id\"=>4}, {\"id\"=>4}, {\"id\"=>4}, {\"id\"=>4}, {\"id\"=>4}, {}, {}, {}, {}, {}, {\"last\"=>\"Nth\"}]"
+"New @data_arr: [{"first"=>"1st", "id"=>0, :modified=>"0, 0"}, {"second"=>"2nd", "id"=>0}, {"id"=>0}, {"id"=>0}, {"id"=>0}, {"id"=>0}, {"id"=>0}, {"id"=>1}, {"id"=>1}, {"id"=>1}, {"id"=>1}, {"id"=>1}, {"id"=>1}, {"id"=>2}, {"id"=>2}, {"id"=>2}, {"id"=>2}, {"id"=>2}, {"id"=>2}, {"id"=>3}, {"id"=>3}, {"id"=>3}, {"id"=>3}, {"id"=>3}, {"id"=>3}, {"id"=>4}, {"id"=>4}, {"id"=>4}, {"id"=>4}, {"id"=>4}, {"id"=>4}, {}, {}, {}, {}, {}, {"last"=>"Nth"}]"
 ```
