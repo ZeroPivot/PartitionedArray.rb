@@ -10,6 +10,11 @@
 # rubocop:disable Layout/LineLength
 # frozen_string_literal: true
 
+
+
+# VERSION v1.0.0a
+# All necessary instance methods have been implemented, ready for real world testing...
+
 # Ranged binary search, for use in CGMFS
 # array_id = relative_id - db_size * (PARTITION_AMOUNT + 1)
 
@@ -27,7 +32,7 @@
 # * Notes: Have to manually convert all the string data to their proper data structure
 #  * HURDLE: converting strings to their proper data structures is non-trivial; could check stackoverflow for a solution
 # VERSION v2.0 (4/22/2022) - added PartitionedArray#add(&block) function, to make additions to the array fast (fundamental method)
-# VERSION v1.0 (2022/03/30) - finished functions necessary for the partitioned array to be useful
+# VERSION v0.6 (2022/03/30) - finished functions necessary for the partitioned array to be useful
 # VERSION: v0.5 (2022/03/14)
 # Implemented
 # PartitionedArray#get_part(partition_id) # => returns the partition specified by partition_id or nil if it doesn't exist
@@ -44,6 +49,9 @@
 # SYNOPSIS: An array system that is partitioned at a lower level, but functions as an almost-normal array at the high level
 # DESCRIPTION:
 # This is a system that is designed to be used as a database, but also as a normal array.
+# NOTES:
+# When loading a JSON database file (*_db.json), the related @ arr variables need to be set to what is within the JSON file database.
+# This means the need to parse a file, and @allocated is set to true in the end.
 PURE_RUBY = false
 unless PURE_RUBY
   require 'json'
@@ -57,11 +65,11 @@ class PartitionedArray
   attr_reader :range_arr, :rel_arr, :db_size, :data_arr, :partition_amount_and_offset, :db_path, :db_name
 
   # DB_SIZE > PARTITION_AMOUNT
-  PARTITION_AMOUNT = 10 # The initial, + 1
+  PARTITION_AMOUNT = 2 # The initial, + 1
   OFFSET = 1 # This came with the math
-  DB_SIZE = 5 # Caveat: The DB_SIZE is the total # of partitions, but you subtract it by one since the first partition is 0, in code.
+  DB_SIZE = 2 # Caveat: The DB_SIZE is the total # of partitions, but you subtract it by one since the first partition is 0, in code.
   DEFAULT_PATH = './CGMFS' # default fallback/write to current path
-  DEBUGGING = false
+  DEBUGGING = true
   DB_NAME = 'partitioned_array_slice'
   PARTITION_ADDITION_AMOUNT = 10
 
@@ -84,13 +92,24 @@ class PartitionedArray
     p string if DEBUGGING
   end
 
-  def <<(data); end
+  def delete(id)
+    deleted = false
+    if id <= (@data_arr.size - 1)
+      @data_arr[id] = nil
+      deleted = true
+    end
+    deleted
+  end
 
-  def push(data); end
+
+
+  def delete_partition_subelement(id, partition_id)
+    # delete the partition's array element to what is specified
+    @data_arr[@range_arr[partition_id].to_a[id]]= nil  
+  end
+  # set the partition's array element to what is specified
+
   
-  def shift(data); end
-
- # set the partition's array element to what is specified
   def set_partition_subelement(id, partition_id, &block)
     set_successfully = false
     # set the partition's array element to what is specified
@@ -101,15 +120,22 @@ class PartitionedArray
         set_successfully = true
       else
         debug "error"
-        set_successfully = false
       end
     end
     set_successfully
   end
 
+  def delete_partition(partition_id)
+    # delete the partition id data
+    debug "Partition ID: #{partition_id}"
+    @data_arr[@range_arr[partition_id]].each_with_index do |_, index|
+      @data_arr[index] = nil
+    end
+  end
+
   def get_partition(partition_id)
     # get the partition id data
-    debug "Partion ID: #{partition_id}"
+    debug "Partition ID: #{partition_id}"
     if partition_id <= @db_size - 1
       @data_arr[@range_arr[partition_id]]
     else
@@ -125,10 +151,11 @@ class PartitionedArray
       if block_given? && @data_arr[id].instance_of?(Hash)
         block.call(@data_arr[id]) # put the openstruct into the block as an argument
         # @data_arr[id] = data
+        debug "block given"
       elsif block_given? && @data_arr[id].nil?
         # this element in particular must have been turned off; every initial element is an OpenStruct and nil if that partition was deactivated
         debug "Loading array element #{id} from nil"
-        @data_arr[id] = Hash.new
+        @data_arr[id] = {}
         block.call(@data_arr[id])
       else
         raise "No block given for element #{id}"
@@ -142,14 +169,13 @@ class PartitionedArray
     # add the data to the array, searching until an empty hash elemet is found
     @data_arr.each_with_index do |element, element_index|
       if element == {} && block_given?  # (if element is nill, no data is added because the partition is "offline")
-          block.call(element)
-          puts element_index
-          break
+        block.call(element)
+        break
       elsif (element_index == @data_arr.size-1 && block_given?)
         PARTITION_ADDITION_AMOUNT.times { add_partition }
         block.call(element)
         break
-        else
+      else
         debug "No block given for element #{element}"
       end
     end
@@ -255,15 +281,6 @@ class PartitionedArray
     # @partition_amount_and_offset.times { nil }
   end
 
-  def save!(db_path: @db_path); end
-
-  # Implement as json and "dragonruby json"
-  def allocate_file!(db_path: @db_path); end
-
-  # When loading a JSON database file (*_db.json), the related @ arr variables need to be set to what is within the JSON file database.
-  # This means the need to parse a file, and @allocated is set to true in the end.
-
-
   def string2range(range_string)
     split_range = range_string.split("..")
     split_range[0].to_i..split_range[1].to_i
@@ -274,8 +291,8 @@ class PartitionedArray
   # range_arr => it is the array of ranges that the database is divided into
   # data_arr => it is output to json
   # rel_arr => it is output to json
-  # part_} => it is taken from the range_ar} subdivisions; perform a map and load it into the database, one by one
-  def load_from_json!(db_folder: @db_folder)
+  # part_} => it is taken from the range_arr subdivisions; perform a map and load it into the database, one by one
+  def load_from_files!(db_folder: @db_folder)
     path = "#{@db_path}/#{@db_name}"
     @data_arr = File.open("#{path}/data_arr.json", 'r') { |f| JSON.parse(f.read) }
     @partition_amount_and_offset = File.open("#{path}/partition_amount_and_offset.json", 'r') { |f| JSON.parse(f.read) }
@@ -284,13 +301,8 @@ class PartitionedArray
     @rel_arr = File.open("#{path}/rel_arr.json", 'r') { |f| JSON.parse(f.read) }
   end
 
-  def array_all_nils?(array)
+  def all_nils?(array)
     array.all?(&:nil?)
-  end
-
-  def del(id)
-    
-
   end
 
   def load_partition_from_file!(partition_id)
@@ -314,7 +326,7 @@ class PartitionedArray
     File.open("#{path}/#{db_folder}/#{@db_name}_part_#{partition_id}", 'w') { |f| f.write(partition_data.to_json) }
   end
 
-  def dump_to_json!(db_folder: @db_folder)
+  def save_all_to_files!(db_folder: @db_folder)
     unless Dir.exist?(@db_path)
       Dir.mkdir(@db_path)
     end
