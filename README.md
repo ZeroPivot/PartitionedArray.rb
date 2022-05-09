@@ -53,6 +53,7 @@ pa.add_partition #=> "dynamically allocates new partition sub-elements to the pa
 pa.load_from_files! #=> loads database from json files, using Ruby's JSON parser
 pa.load_partition_from_file!(partiion_id) #=> loads a given partition id from the @data_arr array
 pa.save_partition_to_file!
+pa.save_all_to_files!
 
 pa.dump_to_json!
 
