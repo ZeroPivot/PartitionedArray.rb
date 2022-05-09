@@ -58,6 +58,7 @@ pa.dump_to_json!
 
 =begin
 The above is basic usage for the partitioned array data structure. For tested code and configuration options, see below.
+=end
 ```
 **WIP.** - ***Last updated: 4.27.2022***
 
