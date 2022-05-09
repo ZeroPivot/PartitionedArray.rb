@@ -39,9 +39,18 @@ end
 
 pa.get(id) # => "Get an element of the partitioned array, ignoring the partioning scheme"
 
+pa.delete_partition_subelement(id, partition_id)
+pa.delete(id)
+pa.set_partition_subelement(id, partition_id, &block)
+pa.delete_partition(partition_id)
+pa.get_partition(partition_id)
+pa.set(id, &block)
+pa.add_partition
+
+
 pa.add_partition #=> "dynamically allocates new partition sub-elements to the partitioned array, as defined by the constants"
 
-pa.load_from_json! #=> loads database from json files, using Ruby's JSON parser
+pa.load_from_files! #=> loads database from json files, using Ruby's JSON parser
 pa.load_partition_from_file!(partiion_id) #=> loads a given partition id from the @data_arr array
 pa.save_partition_to_file!
 
