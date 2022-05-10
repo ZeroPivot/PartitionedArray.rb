@@ -25,6 +25,7 @@
 # 1) allocate range_arr and get the DB running
 # 2) allocate rel_arr based on range_arr
 # 3) allocate the actual array (@data_arr)
+# VERSION: v1.0.2 - set_partition_subelement
 # VERSION: v1.0.1a - all essential functions implemented
 # 5/9/20 - 5:54PM
 # TODO:
@@ -111,11 +112,10 @@ class PartitionedArray
 
   def delete_partition_subelement(id, partition_id)
     # delete the partition's array element to what is specified
-    @data_arr[@range_arr[partition_id].to_a[id]]= nil  
+    @data_arr[@range_arr[partition_id].to_a[id]] = nil
   end
   # set the partition's array element to what is specified
 
-  
   def set_partition_subelement(id, partition_id, &block)
     set_successfully = false
     # set the partition's array element to what is specified
@@ -124,8 +124,12 @@ class PartitionedArray
       if block_given? && partition[id].instance_of?(Hash)
         block.call(partition[id])
         set_successfully = true
-      else
-        debug "error"
+      elsif (id <= @data_arr.size - 1) && partition[id].nil? && block_given?
+        @data_arr[@range_arr[partition_id].to_a[id]] = {}
+        debug "d_arr: #{@data_arr[@range_arr[partition_id].to_a[id]]}"
+        block.call(@data_arr[@range_arr[partition_id].to_a[id]])
+        set_successfully = true
+
       end
     end
     set_successfully
