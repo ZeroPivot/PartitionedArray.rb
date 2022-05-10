@@ -1,3 +1,5 @@
+# rubocop:disable Style/GuardClause
+# rubocop:disable Style/ParenthesesAroundCondition
 # rubocop:disable Style/ConditionalAssignment
 # rubocop:disable Style/StringLiterals
 # rubocop:disable Metrics/ClassLength
@@ -68,6 +70,7 @@ end
 
 require 'fileutils'
 
+# PartitionedArray class, a data structure that is partitioned at a lower level, but functions as an almost-normal array at the high level
 class PartitionedArray
   attr_reader :range_arr, :rel_arr, :db_size, :data_arr, :partition_amount_and_offset, :db_path, :db_name
 
@@ -76,7 +79,7 @@ class PartitionedArray
   OFFSET = 1 # This came with the math
   DB_SIZE = 2 # Caveat: The DB_SIZE is the total # of partitions, but you subtract it by one since the first partition is 0, in code.
   DEFAULT_PATH = './CGMFS' # default fallback/write to current path
-  DEBUGGING = true
+  DEBUGGING = false
   DB_NAME = 'partitioned_array_slice'
   PARTITION_ADDITION_AMOUNT = 10
 
@@ -107,8 +110,6 @@ class PartitionedArray
     end
     deleted
   end
-
-
 
   def delete_partition_subelement(id, partition_id)
     # delete the partition's array element to what is specified
@@ -190,12 +191,9 @@ class PartitionedArray
       end
     end
   end
- 
   # create an initial database (instance variable)
   # later on, make this so it will load a database if its there, and if there's no data, create a standard database then save it
   # Set to work with the default constants
-
-    
 
   def allocate(db_size: @db_size, partition_amount_and_offset: @partition_amount_and_offset, override: false)
     if !@allocated || override
@@ -229,7 +227,7 @@ class PartitionedArray
   end
 
   # Returns a hash based on the array element if you are searching for.
-  
+
   def get(id, hash: false)
     return nil unless @allocated # if the database has not been allocated, return nil
     return @data_arr if id.nil?
@@ -336,18 +334,11 @@ class PartitionedArray
     File.open("#{path}/#{db_folder}/#{@db_name}_part_#{partition_id}", 'w') { |f| f.write(partition_data.to_json) }
   end
 
-
-  def save_partition_element_to_file!(partition_id, element_id, db_folder: @db_folder)
-    partition_data = get_partition(partition_id)
-    path = "#{@db_path}/#{@db_name}"
-
-  end
-
   def save_all_to_files!(db_folder: @db_folder)
     unless Dir.exist?(@db_path)
       Dir.mkdir(@db_path)
     end
-    path = "#{@db_path}/#{@db_name}" 
+    path = "#{@db_path}/#{@db_name}"
 
     unless Dir.exist?(path)
       Dir.mkdir(path)
@@ -378,3 +369,5 @@ end
 # rubocop:enable Metrics/ClassLength
 # rubocop:enable Style/StringLiterals
 # rubocop:enable Style/ConditionalAssignment
+# rubocop:enable Style/ParenthesesAroundCondition
+# rubocop:enable Style/GuardClause
