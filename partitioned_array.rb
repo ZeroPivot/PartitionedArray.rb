@@ -25,10 +25,16 @@
 # 1) allocate range_arr and get the DB running
 # 2) allocate rel_arr based on range_arr
 # 3) allocate the actual array (@data_arr)
+# VERSION: v1.0.1a - all essential functions implemented
+# 5/9/20 - 5:54PM
+# TODO:
+# def save_partition_element_to_file!(partition_id, element_id, db_folder: @db_folder)
+
 # VERSION: v1.1.0 (2022/03/30 - 3:46PM)
 # Implemented all the necessary features for the PA to work, except for an add_from_lefr or add_from_right, which will
 # attempt to fill in the gaps in the database.
 # TODO: implement pure json parsing
+
 # * Notes: Have to manually convert all the string data to their proper data structure
 #  * HURDLE: converting strings to their proper data structures is non-trivial; could check stackoverflow for a solution
 # VERSION v2.0 (4/22/2022) - added PartitionedArray#add(&block) function, to make additions to the array fast (fundamental method)
@@ -324,6 +330,13 @@ class PartitionedArray
     partition_data = get_partition(partition_id)
     path = "#{@db_path}/#{@db_name}"
     File.open("#{path}/#{db_folder}/#{@db_name}_part_#{partition_id}", 'w') { |f| f.write(partition_data.to_json) }
+  end
+
+
+  def save_partition_element_to_file!(partition_id, element_id, db_folder: @db_folder)
+    partition_data = get_partition(partition_id)
+    path = "#{@db_path}/#{@db_name}"
+
   end
 
   def save_all_to_files!(db_folder: @db_folder)
