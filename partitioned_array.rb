@@ -72,7 +72,8 @@ require 'fileutils'
 
 # PartitionedArray class, a data structure that is partitioned at a lower level, but functions as an almost-normal array at the high level
 class PartitionedArray
-  attr_reader :range_arr, :rel_arr, :db_size, :data_arr, :partition_amount_and_offset, :db_path, :db_name
+  # Access individual instance variables with caution...
+  attr_accessor :range_arr, :rel_arr, :db_size, :data_arr, :partition_amount_and_offset, :db_path, :db_name
 
   # DB_SIZE > PARTITION_AMOUNT
   PARTITION_AMOUNT = 2 # The initial, + 1
@@ -214,7 +215,7 @@ class PartitionedArray
       end
 
       x = 0 # offset test, for debug purposes
-      @data_arr = (0..(db_size * (partition_amount_and_offset - x))).to_a.map { Hash.new } # for an array that fills to less than the max of @rel_arr
+      @data_arr = (0..(db_size * (partition_amount_and_offset - x))).to_a.map { {} } # for an array that fills to less than the max of @rel_arr
       # @data_arr = (0..(db_size * (partition_amount_and_offset - x))).to_a.map { nil }
       @allocated = true
     else
