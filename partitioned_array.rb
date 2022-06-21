@@ -64,8 +64,10 @@
 PURE_RUBY = false
 unless PURE_RUBY
   require 'json'
+  require_relative 'lib/string_is_int_or_float'
 else
-  require_relative "json_eval"
+  require_relative "lib/json_eval"
+  require_relative "lib/string_is_int_or_float"
 end
 
 require 'fileutils'
@@ -283,7 +285,7 @@ class PartitionedArray
     end
 
     @db_size += 1
-    @partition_amount_and_offset.times { @data_arr << Hash.new } # initialize new partition within array to nils
+    @partition_amount_and_offset.times { @data_arr << {} } # initialize new partition within array to nils
     # @partition_amount_and_offset.times { @data_arr << nil} # initialize new partition within array to nils
     debug "Partition added successfully; data allocated"
     debug "@data_arr: #{@data_arr}"
@@ -332,7 +334,7 @@ class PartitionedArray
   def save_partition_to_file!(partition_id, db_folder: @db_folder)
     partition_data = get_partition(partition_id)
     path = "#{@db_path}/#{@db_name}"
-    File.open("#{path}/#{db_folder}/#{@db_name}_part_#{partition_id}", 'w') { |f| f.write(partition_data.to_json) }
+    File.open("#{path}/#{db_folder}/#{@db_name}_part_#{partition_id}.json", 'w') { |f| f.write(partition_data.to_json) }
   end
 
   def save_all_to_files!(db_folder: @db_folder)
@@ -351,14 +353,20 @@ class PartitionedArray
     File.open("#{path}/#{db_folder}/rel_arr.json", 'w'){|f| f.write(@rel_arr.to_json) }
     debug path
     @range_arr.each_with_index do |_, index|
-      FileUtils.touch("#{path}/#{@db_folder}/#{@db_name}_part_#{index}")
-      File.open("#{path}/#{@db_name}_part_#{index}", 'w') do |f|
+      FileUtils.touch("#{path}/#{@db_folder}/#{@db_name}_part_#{index}.json")
+      File.open("#{path}/#{@db_name}_part_#{index}.json", 'w') do |f|
         partition = get_partition(index)
         f.write(partition.to_json)
         debug partition.to_json
       end
     end
   end
+end
+
+
+class PartitionedArray # for pure JSON and pure json storage
+
+
 end
 # rubocop:enable Layout/LineLength
 # rubocop:enable Style/IfUnlessModifier
