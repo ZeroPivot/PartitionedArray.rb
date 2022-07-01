@@ -133,7 +133,6 @@ class PartitionedArray
         debug "d_arr: #{@data_arr[@range_arr[partition_id].to_a[id]]}"
         block.call(@data_arr[@range_arr[partition_id].to_a[id]])
         set_successfully = true
-
       end
     end
     set_successfully
