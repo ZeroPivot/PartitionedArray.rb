@@ -64,7 +64,6 @@
 PURE_RUBY = false
 unless PURE_RUBY
   require 'json'
-  require_relative 'lib/string_is_int_or_float'
 else
   require_relative "lib/json_eval"
   require_relative "lib/string_is_int_or_float"
@@ -363,10 +362,7 @@ class PartitionedArray
 end
 
 
-class PartitionedArray # for pure JSON and pure json storage
 
-
-end
 # rubocop:enable Layout/LineLength
 # rubocop:enable Style/IfUnlessModifier
 # rubocop:enable Metrics/MethodLength
