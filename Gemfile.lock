@@ -67,6 +67,7 @@ PLATFORMS
 
 DEPENDENCIES
   readapt
+  rubocop
   ruby-debug-ide
   solargraph
 
