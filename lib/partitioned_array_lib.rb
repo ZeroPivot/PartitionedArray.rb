@@ -61,15 +61,6 @@
 # NOTES:
 # When loading a JSON database file (*_db.json), the related @ arr variables need to be set to what is within the JSON file database.
 # This means the need to parse a file, and @allocated is set to true in the end.
-PURE_RUBY = false
-unless PURE_RUBY
-  require 'json'
-  require_relative 'lib/string_is_int_or_float'
-else
-  require_relative "lib/json_eval"
-  require_relative "lib/string_is_int_or_float"
-end
-
 require 'fileutils'
 
 # PartitionedArray class, a data structure that is partitioned at a lower level, but functions as an almost-normal array at the high level
@@ -363,10 +354,7 @@ class PartitionedArray
 end
 
 
-class PartitionedArray # for pure JSON and pure json storage
 
-
-end
 # rubocop:enable Layout/LineLength
 # rubocop:enable Style/IfUnlessModifier
 # rubocop:enable Metrics/MethodLength
